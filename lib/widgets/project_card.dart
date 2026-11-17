@@ -31,7 +31,7 @@ class ItemCard extends StatelessWidget {
             );
 
           // Navigate ke halaman yang sesuai
-          if (item.name == "Tambah Proyek") {
+          if (item.name == "Tambah Pengalaman") {
             // TODO: Gunakan Navigator.push() untuk melakukan navigasi ke MaterialPageRoute yang mencakup ProjectFormPage
           }
         },
