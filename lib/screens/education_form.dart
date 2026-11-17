@@ -26,6 +26,21 @@ class _EducationFormPageState extends State<EducationFormPage> {
     'Other',
   ];
 
+  String? _validateRequiredText(
+    String? value,
+    String fieldName, {
+    int? maxLength = 50,
+  }) {
+    final trimmedValue = value?.trim() ?? '';
+    if (trimmedValue.isEmpty) {
+      return '$fieldName is required.';
+    }
+    if (maxLength != null && trimmedValue.length > maxLength) {
+      return '$fieldName must be $maxLength characters or fewer.';
+    }
+    return null;
+  }
+
   String? _validateYear(
     String? value, {
     required int? otherYear,
@@ -98,6 +113,7 @@ class _EducationFormPageState extends State<EducationFormPage> {
           padding: const EdgeInsets.all(16),
           children: [
             TextFormField(
+              maxLength: 50,
               decoration: const InputDecoration(
                 labelText: 'Institution',
                 hintText: 'Enter your school or university',
@@ -108,12 +124,11 @@ class _EducationFormPageState extends State<EducationFormPage> {
                   _institution = value ?? '';
                 });
               },
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Institution is required.'
-                  : null,
+              validator: (value) => _validateRequiredText(value, 'Institution'),
             ),
             const SizedBox(height: 16),
             TextFormField(
+              maxLength: 50,
               decoration: const InputDecoration(
                 labelText: 'Degree or program',
                 hintText: 'Enter your degree or field of study',
@@ -124,9 +139,8 @@ class _EducationFormPageState extends State<EducationFormPage> {
                   _program = value ?? '';
                 });
               },
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Degree or program is required.'
-                  : null,
+              validator: (value) =>
+                  _validateRequiredText(value, 'Degree or program'),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
@@ -141,6 +155,8 @@ class _EducationFormPageState extends State<EducationFormPage> {
                         DropdownMenuItem(value: level, child: Text(level)),
                   )
                   .toList(),
+              validator: (value) =>
+                  value == null ? 'Education level is required.' : null,
               onChanged: (value) {
                 if (value != null) {
                   setState(() {
@@ -206,9 +222,8 @@ class _EducationFormPageState extends State<EducationFormPage> {
                   _description = value ?? '';
                 });
               },
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Description is required.'
-                  : null,
+              validator: (value) =>
+                  _validateRequiredText(value, 'Description', maxLength: null),
             ),
             const SizedBox(height: 20),
             SizedBox(
