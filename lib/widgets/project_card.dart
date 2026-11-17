@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:myportofolio_mobile/screens/experience_form.dart';
 
 class ItemHomepage {
   final String name;
@@ -32,7 +33,12 @@ class ItemCard extends StatelessWidget {
 
           // Navigate ke halaman yang sesuai
           if (item.name == "Tambah Pengalaman") {
-            // TODO: Gunakan Navigator.push() untuk melakukan navigasi ke MaterialPageRoute yang mencakup ProjectFormPage
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ExperienceFormPage(),
+              ),
+            );
           }
         },
         child: Container(
