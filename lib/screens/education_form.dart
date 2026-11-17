@@ -12,8 +12,8 @@ class _EducationFormPageState extends State<EducationFormPage> {
   final _formKey = GlobalKey<FormState>();
   String _institution = '';
   String _program = '';
-  String _startYear = '';
-  String _endYear = '';
+  int? _startYear;
+  int? _endYear;
   String _description = '';
   String _educationLevel = 'Bachelor';
 
@@ -28,16 +28,14 @@ class _EducationFormPageState extends State<EducationFormPage> {
 
   String? _validateYear(
     String? value, {
-    required String otherYear,
+    required int? otherYear,
     bool isStart = false,
   }) {
     final year = int.tryParse(value?.trim() ?? '');
     if (year == null || year < 1900 || year > 9999) {
       return 'Enter a valid year (for example, 2024).';
     }
-    final otherYearValue = int.tryParse(otherYear.trim());
-    if (otherYearValue != null &&
-        (isStart ? year > otherYearValue : year < otherYearValue)) {
+    if (otherYear != null && (isStart ? year > otherYear : year < otherYear)) {
       return isStart
           ? 'Start year must not be after end year.'
           : 'End year must not be before start year.';
@@ -59,7 +57,7 @@ class _EducationFormPageState extends State<EducationFormPage> {
               Text('Institution: ${_institution.trim()}'),
               Text('Program: ${_program.trim()}'),
               Text('Level: $_educationLevel'),
-              Text('Years: ${_startYear.trim()} - ${_endYear.trim()}'),
+              Text('Years: $_startYear - $_endYear'),
               Text('Description: ${_description.trim()}'),
             ],
           ),
@@ -71,8 +69,8 @@ class _EducationFormPageState extends State<EducationFormPage> {
               setState(() {
                 _institution = '';
                 _program = '';
-                _startYear = '';
-                _endYear = '';
+                _startYear = null;
+                _endYear = null;
                 _description = '';
                 _educationLevel = 'Bachelor';
               });
@@ -164,7 +162,7 @@ class _EducationFormPageState extends State<EducationFormPage> {
                     ),
                     onChanged: (String? value) {
                       setState(() {
-                        _startYear = value ?? '';
+                        _startYear = int.tryParse(value ?? '');
                       });
                     },
                     validator: (value) => _validateYear(
@@ -185,7 +183,7 @@ class _EducationFormPageState extends State<EducationFormPage> {
                     ),
                     onChanged: (String? value) {
                       setState(() {
-                        _endYear = value ?? '';
+                        _endYear = int.tryParse(value ?? '');
                       });
                     },
                     validator: (value) =>
