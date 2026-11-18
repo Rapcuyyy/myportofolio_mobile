@@ -100,10 +100,13 @@ class _EducationFormPageState extends State<EducationFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Add Education'),
-        backgroundColor: Colors.indigo,
+        backgroundColor: primaryColor,
         foregroundColor: Colors.white,
       ),
       drawer: const LeftDrawer(),
@@ -166,47 +169,35 @@ class _EducationFormPageState extends State<EducationFormPage> {
               },
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Start year',
-                      hintText: '2020',
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (String? value) {
-                      setState(() {
-                        _startYear = int.tryParse(value ?? '');
-                      });
-                    },
-                    validator: (value) => _validateYear(
-                      value,
-                      otherYear: _endYear,
-                      isStart: true,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'End year',
-                      hintText: '2024',
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (String? value) {
-                      setState(() {
-                        _endYear = int.tryParse(value ?? '');
-                      });
-                    },
-                    validator: (value) =>
-                        _validateYear(value, otherYear: _startYear),
-                  ),
-                ),
-              ],
+            TextFormField(
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Start year',
+                hintText: '2020',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (String? value) {
+                setState(() {
+                  _startYear = int.tryParse(value ?? '');
+                });
+              },
+              validator: (value) =>
+                  _validateYear(value, otherYear: _endYear, isStart: true),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'End year',
+                hintText: '2024',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (String? value) {
+                setState(() {
+                  _endYear = int.tryParse(value ?? '');
+                });
+              },
+              validator: (value) => _validateYear(value, otherYear: _startYear),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -231,11 +222,11 @@ class _EducationFormPageState extends State<EducationFormPage> {
               child: ElevatedButton(
                 onPressed: _saveEducation,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.indigo,
+                  backgroundColor: primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                child: const Text('Save Education'),
+                child: const Text('Save'),
               ),
             ),
           ],
