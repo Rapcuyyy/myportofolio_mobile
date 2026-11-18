@@ -100,13 +100,11 @@ class _EducationFormPageState extends State<EducationFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
-
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: const Text('Add Education'),
-        backgroundColor: primaryColor,
+        title: const Center(child: Text('Add Education Form')),
+        backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
       ),
       drawer: const LeftDrawer(),
@@ -217,16 +215,20 @@ class _EducationFormPageState extends State<EducationFormPage> {
                   _validateRequiredText(value, 'Description', maxLength: null),
             ),
             const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saveEducation,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: _saveEducation,
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(Colors.indigo),
+                  ),
+                  child: const Text(
+                    "Save",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
-                child: const Text('Save'),
               ),
             ),
           ],
