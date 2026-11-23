@@ -1,4 +1,10 @@
-### Tugas 7
+## Tugas 7
+
+### AI Closure
+
+Karena tugas dari ketentuan tugas 7 ini sudah terselesaikan lewat tutorial, jadi untuk mengubah beberapa kode pada tugas ini saya hanya mengandalkan hint yang telah diberikan pada berkas tugas 7. AI digunakan untuk membantu saya memahami lebih dalam tentang flutter. Pertanyaan reflektif tugas ini juga menggunakan AI untuk lebih memahami jawaban saya yang telah saya peroleh sedikit demi sedikit dari beberapa sumber seperti PPT 09 dan 10 PBP kelas F, dokumentasi Flutter, W3Schools, GeeksforGeeks, dan juga Medium.
+
+### Pertanyaan Reflektif
 
 1. Widget tree adalah struktur dari semua widget yang membentuk tampilan aplikasi Flutter. Setiap elemen UI dalam Flutter adalah widget, dan semua widget ini tersusun secara hierarkis seperti pohon. Di bagian akar biasanya terdapat widget yang paling tinggi, seperti `MaterialApp` atau `CupertinoApp`, lalu di dalamnya terdapat widget lain yang menjadi child (anak), dan child tersebut bisa memiliki child lagi.
 
@@ -128,6 +134,20 @@
     - `Hot restart` jika aplikasi masih berjalan tetapi state perlu dibersihkan
     - `Full restart` atau menjalankan ulang aplikasi dari awal jika aplikasi sudah berhenti atau perubahan lebih fundamental
 
-## AI Closure
 
-Karena tugas dari ketentuan tugas 7 ini sudah terselesaikan lewat tutorial, jadi untuk mengubah beberapa kode pada tugas ini saya hanya mengandalkan hint yang telah diberikan pada berkas tugas 7. AI digunakan untuk membantu saya memahami lebih dalam tentang flutter. Pertanyaan reflektif tugas ini juga menggunakan AI untuk lebih memahami jawaban saya yang telah saya peroleh sedikit demi sedikit dari beberapa sumber seperti PPT 09 dan 10 PBP kelas F, dokumentasi Flutter, W3Schools, GeeksforGeeks, dan juga Medium.
+
+## Tugas 8
+
+### AI Closure
+
+Pada tugas ini, AI digunakan untuk lebih memahami materi tentang Forms, dan inputs. AI juga digunakan untuk menyusun layouts yang redundant terutama pada bagian `Scaffold` di `education.dart`. Selebihnya saya masih bisa menyusun `education.dart` dengan mengikuti tutorail, seperti bagian Navigations, dan juga validasi input.
+
+### Pertanyaan Reflektif
+
+1. `Navigator.push()` menambahkan halaman baru di atas halaman saat ini. Contohnya pada drawer Tambah Pengalaman, _method_ ini membuka formulir pengalaman, dan kemudian tombol kembali atau `Navigator.pop()` dapat menutupnya dan kembali ke halaman sebelumnya. `Navigator.pushReplacement()` membuka halaman baru sekaligus menggantikan halaman saat ini di tumpukan navigasi. Opsi _Home_ di drawer digunakan untuk mengganti halaman yang sedang dibuka dengan halaman utama. `Navigator.pop()` menutup halaman atau dialog paling atas, lalu tombol OK menutup dialog setelah formulir disimpan. Fitur ini dapat dilihat pada `project_card.dart`, `left_drawer.dart`, dan `education_form.dart`.
+
+2. `Scaffold` menyediakan kerangka halaman, sementara `AppBar` dan `Drawer` menempati bagian yang konsisten di dalam kerangka itu. Dengan begitu, halaman utama dan formulir memiliki pola navigasi serta struktur dasar yang serupa. Contoh warna tema: `main.dart` memakai **indigo** sebagai warna utama; `AppBar` halaman utama mengambil warna utama dari tema, sedangkan formulir dan header drawer juga menggunakan indigo. Contoh penggunaan warna ini dapa dilihat pada `main.dart`, `menu.dart`, `experience_form.dart`, dan `left_drawer.dart`.
+
+3. Formulir disusun vertikal agar label dan kolom input mudah diikuti. `Padding` memberi jarak dari tepi dan antarbagian, kemudian `SizedBox` memberi jarak tetap di antara kolom, seperti pada formulir pendidikan. Saat tinggi layar terbatas, seperti ketika papan ketik terbuka, maka `SingleChildScrollView` pada formulir pengalaman dan `ListView` pada formulir pendidikan memungkinkan pengguna menggulir untuk menjangkau kolom atau tombol yang tidak muat di layar.
+
+4. `GlobalKey<FormState>` menghubungkan kode dengan `Form` agar status formulir dapat diperiksa. Setiap `validator` memeriksa nilai kolom dan mengembalikan pesan kesalahan bila tidak valid. Saat tombol Simpan ditekan, `validate()` menjalankan validator pada kolom-kolom formulir, hasil `true` berarti formulir boleh diproses, sedangkan `false` membuat penyimpanan dihentikan dan pesan kesalahan ditampilkan. Contohnya, nama pengalaman yang kosong atau hanya berisi spasi ditolak. Pada formulir pendidikan, tahun seperti `abcd` juga ditolak meskipun kolomnya memakai `TextInputType.number`: jenis papan ketik hanya membantu memasukkan angka, bukan menjamin nilai yang dimasukkan valid. Contohnya dapat dilihat pada `experience_form.dart` dan `education_form.dart`.
