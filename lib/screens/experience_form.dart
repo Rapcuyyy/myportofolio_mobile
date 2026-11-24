@@ -1,5 +1,10 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:myportofolio_mobile/models/experience.dart';
+import 'package:myportofolio_mobile/services/api_client.dart';
+import 'package:myportofolio_mobile/services/auth_state.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
+import 'package:myportofolio_mobile/widgets/auth_guard.dart';
+import 'package:provider/provider.dart';
 
 class ExperienceFormPage extends StatefulWidget {
   const ExperienceFormPage({super.key});
@@ -11,19 +16,106 @@ class ExperienceFormPage extends StatefulWidget {
 class _ExperienceFormPageState extends State<ExperienceFormPage> {
   final _formKey = GlobalKey<FormState>();
 
-  String _experienceName = "";
-  String _description = "";
-  String _category = "Full-Time"; // default
-  String _thumbnail = "";
+  String _title = '';
+  String _description = '';
+  String _category = 'full-time';
+  String _thumbnail = '';
+  bool _isSubmitting = false;
 
   final List<String> _categories = [
-    'Internship',
-    'Research',
-    'Volunteer',
-    'Part-Time',
-    'Full-Time',
-    'Freelance',
+    'internship',
+    'research',
+    'volunteer',
+    'part-time',
+    'full-time',
+    'freelance',
   ];
+
+  Future<void> _submit() async {
+    if (_isSubmitting || !_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final isLoggedIn = await ensureLoggedIn(context);
+      if (!mounted || !isLoggedIn) return;
+
+      final authState = context.read<AuthState>();
+      final token = authState.token;
+      if (token == null) {
+        _showSnackBar('Please log in to add an experience.');
+        return;
+      }
+
+      final newProject = Experience(
+        title: _title.trim(),
+        description: _description.trim(),
+        category: _category,
+        thumbnail: _thumbnail.trim(),
+      );
+      final createdProject = await context.read<ApiClient>().createExperience(
+        newProject,
+        token: token,
+      );
+      if (!mounted) return;
+
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Experience added'),
+          content: Text('“${createdProject.title}” was created successfully.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+
+      if (!mounted) return;
+      _formKey.currentState!.reset();
+      setState(() {
+        _title = '';
+        _description = '';
+        _category = 'full-time';
+        _thumbnail = '';
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+
+      if (error.statusCode == 401) {
+        var message = 'Session expired. Please log in again.';
+        try {
+          await context.read<AuthState>().logout();
+        } on ApiException catch (logoutError) {
+          message =
+              'Session expired (logout error ${logoutError.statusCode}). '
+              'Please log in again.';
+        }
+        if (!mounted) return;
+
+        _showSnackBar(message);
+        await ensureLoggedIn(context);
+      } else {
+        _showSnackBar('Could not add experience (HTTP ${error.statusCode}).');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,14 +143,10 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
-                  onChanged: (String? value) {
-                    setState(() {
-                      _experienceName = value!;
-                    });
-                  },
+                  onChanged: (value) => _title = value,
                   validator: (String? value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Nama pengalaman tidak boleh kosong!";
+                      return 'Experience title cannot be empty.';
                     }
                     return null;
                   },
@@ -77,14 +165,10 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
-                  onChanged: (String? value) {
-                    setState(() {
-                      _description = value!;
-                    });
-                  },
+                  onChanged: (value) => _description = value,
                   validator: (String? value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Deskripsi pengalaman tidak boleh kosong!";
+                      return 'Experience description cannot be empty.';
                     }
                     return null;
                   },
@@ -106,14 +190,20 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                       .map(
                         (category) => DropdownMenuItem(
                           value: category,
-                          child: Text(category),
+                          child: Text(
+                            category
+                                .split('-')
+                                .map(
+                                  (part) =>
+                                      '${part[0].toUpperCase()}${part.substring(1)}',
+                                )
+                                .join('-'),
+                          ),
                         ),
                       )
                       .toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _category = newValue!;
-                    });
+                  onChanged: (value) {
+                    if (value != null) _category = value;
                   },
                 ),
               ),
@@ -129,11 +219,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
-                  onChanged: (String? value) {
-                    setState(() {
-                      _thumbnail = value!;
-                    });
-                  },
+                  onChanged: (value) => _thumbnail = value,
                 ),
               ),
 
@@ -146,44 +232,13 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.all(Colors.indigo),
                     ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text(
-                                'Pengalaman berhasil ditambahkan!',
-                              ),
-                              content: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Nama Pengalaman: $_experienceName'),
-                                    Text('Deskripsi: $_description'),
-                                    Text('Kategori: $_category'),
-                                    Text('Sertifikat: $_thumbnail'),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _formKey.currentState!.reset();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      }
-                    },
-                    child: const Text(
-                      "Save",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    onPressed: _isSubmitting ? null : _submit,
+                    child: _isSubmitting
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'Save',
+                            style: TextStyle(color: Colors.white),
+                          ),
                   ),
                 ),
               ),

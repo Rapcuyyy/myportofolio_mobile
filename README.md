@@ -94,7 +94,6 @@ Karena tugas dari ketentuan tugas 7 ini sudah terselesaikan lewat tutorial, jadi
     - Form input
     - Counter
     - Toggle switch
-    - Todo list
     - Halaman yang berinteraksi dengan user
 
     Pilih `StatelessWidget` jika:
