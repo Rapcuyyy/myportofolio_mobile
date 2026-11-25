@@ -1,6 +1,9 @@
+import 'package:flutter/material.dart' as flutter;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myportofolio_mobile/main.dart';
+import 'package:myportofolio_mobile/models/experience.dart';
+import 'package:myportofolio_mobile/screens/experience_detail_screen.dart';
 import 'package:myportofolio_mobile/screens/login_screen.dart';
 import 'package:myportofolio_mobile/services/api_client.dart';
 import 'package:myportofolio_mobile/services/auth_state.dart';
@@ -39,5 +42,26 @@ void main() {
 
     expect(find.text('Username cannot be empty!'), findsOneWidget);
     expect(find.text('Password cannot be empty!'), findsOneWidget);
+  });
+
+  testWidgets('experience details handle empty optional fields', (
+    tester,
+  ) async {
+    const experience = Experience(
+      title: '',
+      description: '',
+      category: '',
+      thumbnail: '',
+    );
+
+    await tester.pumpWidget(
+      const flutter.MaterialApp(
+        home: ExperienceDetailScreen(experience: experience),
+      ),
+    );
+
+    expect(find.text('Experience details'), findsOneWidget);
+    expect(find.text('No description available.'), findsOneWidget);
+    expect(find.byType(flutter.Image), findsNothing);
   });
 }
