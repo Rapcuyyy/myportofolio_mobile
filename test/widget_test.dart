@@ -1,40 +1,43 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:myportofolio_mobile/main.dart';
 import 'package:myportofolio_mobile/screens/login_screen.dart';
 import 'package:myportofolio_mobile/services/api_client.dart';
+import 'package:myportofolio_mobile/services/auth_state.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  testWidgets('app renders and login fields have Material localizations',
-      (WidgetTester tester) async {
+  testWidgets('app renders the portfolio home screen', (tester) async {
     await tester.binding.setSurfaceSize(const Size(800, 1200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    await tester.pumpWidget(
-      MyApp(apiClient: ApiClient()),
-    );
+    await tester.pumpWidget(MyApp(apiClient: ApiClient()));
 
     expect(find.text('MyPortfolio'), findsOneWidget);
+    expect(find.text('Selamat datang di MyPortfolio Mobile!'), findsOneWidget);
+    expect(find.text('Lihat Pengalaman'), findsOneWidget);
+  });
 
-    tester
-        .state<NavigatorState>(find.byType(Navigator))
-        .push(
-          MaterialPageRoute<void>(
-            builder: (_) => const LoginScreen(),
-          ),
-        );
-    await tester.pumpAndSettle();
+  testWidgets('login screen validates empty fields', (tester) async {
+    final apiClient = ApiClient();
 
-    expect(find.byType(AppBar), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          Provider.value(value: apiClient),
+          ChangeNotifierProvider(create: (_) => AuthState(apiClient)),
+        ],
+        child: const MaterialApp(home: LoginScreen()),
+      ),
+    );
+
+    expect(find.widgetWithText(AppBar, 'Login'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
+
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+    await tester.pump();
+
+    expect(find.text('Username cannot be empty!'), findsOneWidget);
+    expect(find.text('Password cannot be empty!'), findsOneWidget);
   });
 }
