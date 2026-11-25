@@ -31,8 +31,7 @@ class ItemCard extends StatelessWidget {
             if (!context.mounted || !allowed) return;
           }
 
-          if (item.name == "Logout" &&
-              context.read<AuthState>().isLoggedIn) {
+          if (item.name == "Logout" && context.read<AuthState>().isLoggedIn) {
             await context.read<AuthState>().logout();
             if (!context.mounted) return;
           }
