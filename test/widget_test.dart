@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart' as flutter;
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myportofolio_mobile/main.dart';
@@ -19,6 +20,22 @@ void main() {
     expect(find.text('MyPortfolio'), findsOneWidget);
     expect(find.text('Selamat datang di MyPortfolio Mobile!'), findsOneWidget);
     expect(find.text('Lihat Pengalaman'), findsOneWidget);
+  });
+
+  testWidgets('Lihat Pengalaman opens the experience list', (tester) async {
+    final apiClient = ApiClient(
+      client: MockClient((request) async {
+        expect(request.url.path, '/api/v1/experience/');
+        return http.Response('[]', 200);
+      }),
+    );
+
+    await tester.pumpWidget(MyApp(apiClient: apiClient));
+    await tester.tap(find.text('Lihat Pengalaman'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pengalaman'), findsOneWidget);
+    expect(find.text('No experiences found.'), findsOneWidget);
   });
 
   testWidgets('login screen validates empty fields', (tester) async {
@@ -55,13 +72,11 @@ void main() {
     );
 
     await tester.pumpWidget(
-      const flutter.MaterialApp(
-        home: ExperienceDetailScreen(experience: experience),
-      ),
+      const MaterialApp(home: ExperienceDetailScreen(experience: experience)),
     );
 
     expect(find.text('Experience details'), findsOneWidget);
     expect(find.text('No description available.'), findsOneWidget);
-    expect(find.byType(flutter.Image), findsNothing);
+    expect(find.byType(Image), findsNothing);
   });
 }

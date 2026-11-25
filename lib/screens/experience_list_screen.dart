@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/models/experience.dart';
 import 'package:myportofolio_mobile/screens/experience_detail_screen.dart';
 import 'package:myportofolio_mobile/services/api_client.dart';
@@ -32,7 +32,14 @@ class _ExperienceListScreenState extends State<ExperienceListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Experiences')),
+      appBar: AppBar(
+        title: const Text(
+          'Pengalaman',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       drawer: const LeftDrawer(),
       body: FutureBuilder<List<Experience>>(
         future: _experiencesFuture,

@@ -22,7 +22,7 @@ void main() {
         baseUrl: 'https://example.test',
         client: MockClient((request) async {
           expect(request.method, 'POST');
-          expect(request.url.path, '/api/v1/experiences/');
+          expect(request.url.path, '/api/v1/experience/');
           expect(request.headers['Authorization'], 'Token test-token');
           expect(jsonDecode(request.body), {
             'title': experience.title,
