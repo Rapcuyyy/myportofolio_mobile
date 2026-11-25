@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/models/education.dart';
+import 'package:myportofolio_mobile/screens/education_detail_screen.dart';
 import 'package:myportofolio_mobile/services/api_client.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 import 'package:provider/provider.dart';
@@ -115,6 +116,14 @@ class _EducationListScreenState extends State<EducationListScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     isThreeLine: true,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (context) =>
+                              EducationDetailScreen(education: education),
+                        ),
+                      );
+                    },
                   ),
                 );
               },

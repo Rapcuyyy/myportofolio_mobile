@@ -58,6 +58,25 @@ void main() {
     expect(requestCount, 2);
     expect(find.text('Example University'), findsOneWidget);
     expect(find.textContaining('Computer Science'), findsOneWidget);
+
+    await tester.tap(find.text('Example University'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Education details'), findsOneWidget);
+    expect(find.text('ID'), findsOneWidget);
+    expect(find.text('education-1'), findsOneWidget);
+    expect(find.text('Institution'), findsOneWidget);
+    expect(find.text('Example University'), findsNWidgets(2));
+    expect(find.text('Program'), findsOneWidget);
+    expect(find.text('Computer Science'), findsOneWidget);
+    expect(find.text('Education level'), findsOneWidget);
+    expect(find.text('Bachelor'), findsOneWidget);
+    expect(find.text('Start year'), findsOneWidget);
+    expect(find.text('2020'), findsOneWidget);
+    expect(find.text('End year'), findsOneWidget);
+    expect(find.text('2024'), findsOneWidget);
+    expect(find.text('Description'), findsOneWidget);
+    expect(find.text('Software engineering.'), findsOneWidget);
   });
 }
 
