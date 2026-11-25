@@ -1,6 +1,9 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:myportofolio_mobile/services/auth_state.dart';
 import 'package:myportofolio_mobile/screens/education_form.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
+import 'package:myportofolio_mobile/widgets/auth_guard.dart';
+import 'package:provider/provider.dart';
 
 class ItemHomepage {
   final String name;
@@ -22,7 +25,17 @@ class ItemCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         // Aksi ketika kartu ditekan oleh pengguna.
-        onTap: () {
+        onTap: () async {
+          if (item.name == "Tambah Pengalaman") {
+            final allowed = await ensureLoggedIn(context);
+            if (!context.mounted || !allowed) return;
+          }
+
+          if (item.name == "Logout" && context.read<AuthState>().isLoggedIn) {
+            await context.read<AuthState>().logout();
+            if (!context.mounted) return;
+          }
+
           // Menampilkan SnackBar dengan pesan interaktif.
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
