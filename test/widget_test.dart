@@ -38,6 +38,50 @@ void main() {
     expect(find.text('No experiences found.'), findsOneWidget);
   });
 
+  testWidgets('Lihat Pendidikan action opens the education list', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    final apiClient = ApiClient(
+      client: MockClient((request) async {
+        expect(request.url.path, '/api/v1/education/');
+        return http.Response('[]', 200);
+      }),
+    );
+
+    await tester.pumpWidget(MyApp(apiClient: apiClient));
+    await tester.tap(find.text('Lihat Pendidikan'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pendidikan'), findsOneWidget);
+    expect(find.text('No education records found.'), findsOneWidget);
+  });
+
+  testWidgets('View Education drawer item opens the education list', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    final apiClient = ApiClient(
+      client: MockClient((request) async {
+        expect(request.url.path, '/api/v1/education/');
+        return http.Response('[]', 200);
+      }),
+    );
+
+    await tester.pumpWidget(MyApp(apiClient: apiClient));
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('View Education'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pendidikan'), findsOneWidget);
+    expect(find.text('No education records found.'), findsOneWidget);
+  });
+
   testWidgets('login screen validates empty fields', (tester) async {
     final apiClient = ApiClient();
 
