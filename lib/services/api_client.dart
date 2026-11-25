@@ -27,7 +27,7 @@ class ApiClient {
 
   Future<List<Experience>> getExperiences() async {
     final response = await _client.get(
-      _uri('/api/v1/experiences/'),
+      _uri('/api/v1/experience/'),
       headers: const {'Accept': 'application/json'},
     );
     _ensureSuccess(response);
@@ -43,7 +43,7 @@ class ApiClient {
     required String token,
   }) async {
     final response = await _client.post(
-      _uri('/api/v1/experiences/'),
+      _uri('/api/v1/experience/'),
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json; charset=UTF-8',

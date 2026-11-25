@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:myportofolio_mobile/screens/experience_list_screen.dart';
 import 'package:myportofolio_mobile/services/auth_state.dart';
 import 'package:myportofolio_mobile/screens/education_form.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
@@ -34,6 +35,16 @@ class ItemCard extends StatelessWidget {
           if (item.name == "Logout" && context.read<AuthState>().isLoggedIn) {
             await context.read<AuthState>().logout();
             if (!context.mounted) return;
+          }
+
+          if (item.name == "Lihat Pengalaman") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ExperienceListScreen(),
+              ),
+            );
+            return;
           }
 
           // Menampilkan SnackBar dengan pesan interaktif.
