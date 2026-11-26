@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/models/education.dart';
+import 'package:myportofolio_mobile/screens/education_list_screen.dart';
 import 'package:myportofolio_mobile/services/api_client.dart';
 import 'package:myportofolio_mobile/services/auth_state.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
@@ -116,7 +117,7 @@ class _EducationFormPageState extends State<EducationFormPage> {
       );
       if (!mounted) return;
 
-      await showDialog<void>(
+      final viewEducationList = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Education added'),
@@ -137,14 +138,28 @@ class _EducationFormPageState extends State<EducationFormPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Add another'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('View education'),
             ),
           ],
         ),
       );
 
       if (!mounted) return;
+      if (viewEducationList == true) {
+        Navigator.of(context).pushReplacement<void, void>(
+          MaterialPageRoute<void>(
+            builder: (context) => const EducationListScreen(),
+          ),
+        );
+        return;
+      }
+
+      if (viewEducationList == null) return;
       _formKey.currentState!.reset();
       setState(() {
         _institution = '';
@@ -168,8 +183,9 @@ class _EducationFormPageState extends State<EducationFormPage> {
         }
         if (!mounted) return;
 
-        _showSnackBar(message);
         await ensureLoggedIn(context);
+        if (!mounted) return;
+        _showSnackBar(message);
       } else {
         _showSnackBar('Could not add education (HTTP ${error.statusCode}).');
       }
