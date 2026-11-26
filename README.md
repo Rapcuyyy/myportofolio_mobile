@@ -5,7 +5,7 @@
 Aplikasi Flutter ini terintegrasi dengan backend Django melalui REST API.
 
 - **Deployed API:** [https://rafa-darussalam-myportofolio.pws.cs.ui.ac.id/](https://rafa-darussalam-myportofolio.pws.cs.ui.ac.id/)
-- **Repository backend:** backend Django dikelola pada deployment di URL API di atas.
+- **Repository backend:** [https://github.com/Rapcuyyy/myPortofolio.git](https://github.com/Rapcuyyy/myPortofolio.git)
 
 Persyaratan:
 
