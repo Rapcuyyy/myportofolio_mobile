@@ -1,3 +1,46 @@
+[![CI](https://github.com/Rapcuyyy/myportofolio_mobile/actions/workflows/main.yaml/badge.svg)](https://github.com/Rapcuyyy/myportofolio_mobile/actions/workflows/main.yaml)
+
+## Persiapan dan Menjalankan Aplikasi
+
+Aplikasi Flutter ini terintegrasi dengan backend Django melalui REST API.
+
+- **Deployed API:** [https://rafa-darussalam-myportofolio.pws.cs.ui.ac.id/](https://rafa-darussalam-myportofolio.pws.cs.ui.ac.id/)
+- **Repository backend:** backend Django dikelola pada deployment di URL API di atas.
+
+Persyaratan:
+
+- Flutter SDK dengan channel `stable`
+- Dart SDK yang sesuai dengan versi Flutter
+- Android Emulator, browser Chrome, atau perangkat yang terhubung
+
+Jalankan perintah berikut dari root proyek:
+
+```bash
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+```
+
+Untuk menjalankan aplikasi dengan backend deployment:
+
+```bash
+flutter run --dart-define=API_BASE_URL=https://rafa-darussalam-myportofolio.pws.cs.ui.ac.id
+```
+
+Saat menjalankan aplikasi lokal dengan Android Emulator, URL contoh untuk backend lokal adalah `http://10.0.2.2:8000`. Untuk browser/Chrome, gunakan `http://localhost:8000` atau alamat backend yang dapat diakses browser. Nilai `--dart-define=API_BASE_URL=...` mengubah `API_BASE_URL` pada [lib/config.dart](lib/config.dart); tanpa argumen ini, aplikasi menggunakan `http://10.0.2.2:8000`.
+
+Jika model Dart diubah, buat kembali serializer JSON dengan:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+Menjalankan pengujian:
+
+```bash
+flutter test
+flutter analyze
+```
+
 ## Tugas 7
 
 ### AI Closure
