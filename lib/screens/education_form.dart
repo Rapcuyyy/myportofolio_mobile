@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
+import 'package:myportofolio_mobile/widgets/auth_guard.dart';
 
 class EducationFormPage extends StatefulWidget {
   const EducationFormPage({super.key});
@@ -16,6 +17,7 @@ class _EducationFormPageState extends State<EducationFormPage> {
   int? _endYear;
   String _description = '';
   String _educationLevel = 'Bachelor';
+  bool _isCheckingAuthentication = true;
 
   final List<String> _educationLevels = [
     'High School',
@@ -25,6 +27,25 @@ class _EducationFormPageState extends State<EducationFormPage> {
     'Doctorate',
     'Other',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _ensureAccess());
+  }
+
+  Future<void> _ensureAccess() async {
+    final allowed = await ensureLoggedIn(context);
+    if (!mounted) return;
+    if (!allowed) {
+      Navigator.of(context).maybePop();
+      return;
+    }
+
+    setState(() {
+      _isCheckingAuthentication = false;
+    });
+  }
 
   String? _validateRequiredText(
     String? value,
@@ -58,7 +79,9 @@ class _EducationFormPageState extends State<EducationFormPage> {
     return null;
   }
 
-  void _saveEducation() {
+  Future<void> _saveEducation() async {
+    final allowed = await ensureLoggedIn(context);
+    if (!mounted || !allowed) return;
     if (!_formKey.currentState!.validate()) return;
 
     showDialog<void>(
@@ -110,128 +133,140 @@ class _EducationFormPageState extends State<EducationFormPage> {
         foregroundColor: Colors.white,
       ),
       drawer: const LeftDrawer(),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextFormField(
-              maxLength: 50,
-              decoration: const InputDecoration(
-                labelText: 'Institution',
-                hintText: 'Enter your school or university',
-                border: OutlineInputBorder(),
+      body: _isCheckingAuthentication
+          ? const Center(child: CircularProgressIndicator())
+          : Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  TextFormField(
+                    maxLength: 50,
+                    decoration: const InputDecoration(
+                      labelText: 'Institution',
+                      hintText: 'Enter your school or university',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (String? value) {
+                      setState(() {
+                        _institution = value ?? '';
+                      });
+                    },
+                    validator: (value) =>
+                        _validateRequiredText(value, 'Institution'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    maxLength: 50,
+                    decoration: const InputDecoration(
+                      labelText: 'Degree or program',
+                      hintText: 'Enter your degree or field of study',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (String? value) {
+                      setState(() {
+                        _program = value ?? '';
+                      });
+                    },
+                    validator: (value) =>
+                        _validateRequiredText(value, 'Degree or program'),
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    initialValue: 'Bachelor',
+                    decoration: const InputDecoration(
+                      labelText: 'Education level',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _educationLevels
+                        .map(
+                          (level) => DropdownMenuItem(
+                            value: level,
+                            child: Text(level),
+                          ),
+                        )
+                        .toList(),
+                    validator: (value) =>
+                        value == null ? 'Education level is required.' : null,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          _educationLevel = value;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Start year',
+                      hintText: '2020',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (String? value) {
+                      setState(() {
+                        _startYear = int.tryParse(value ?? '');
+                      });
+                    },
+                    validator: (value) => _validateYear(
+                      value,
+                      otherYear: _endYear,
+                      isStart: true,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'End year',
+                      hintText: '2024',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (String? value) {
+                      setState(() {
+                        _endYear = int.tryParse(value ?? '');
+                      });
+                    },
+                    validator: (value) =>
+                        _validateYear(value, otherYear: _startYear),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      hintText: 'Add details about your studies',
+                      border: OutlineInputBorder(),
+                      alignLabelWithHint: true,
+                    ),
+                    onChanged: (String? value) {
+                      setState(() {
+                        _description = value ?? '';
+                      });
+                    },
+                    validator: (value) => _validateRequiredText(
+                      value,
+                      'Description',
+                      maxLength: null,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _saveEducation,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text('Save'),
+                    ),
+                  ),
+                ],
               ),
-              onChanged: (String? value) {
-                setState(() {
-                  _institution = value ?? '';
-                });
-              },
-              validator: (value) => _validateRequiredText(value, 'Institution'),
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              maxLength: 50,
-              decoration: const InputDecoration(
-                labelText: 'Degree or program',
-                hintText: 'Enter your degree or field of study',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (String? value) {
-                setState(() {
-                  _program = value ?? '';
-                });
-              },
-              validator: (value) =>
-                  _validateRequiredText(value, 'Degree or program'),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: 'Bachelor',
-              decoration: const InputDecoration(
-                labelText: 'Education level',
-                border: OutlineInputBorder(),
-              ),
-              items: _educationLevels
-                  .map(
-                    (level) =>
-                        DropdownMenuItem(value: level, child: Text(level)),
-                  )
-                  .toList(),
-              validator: (value) =>
-                  value == null ? 'Education level is required.' : null,
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _educationLevel = value;
-                  });
-                }
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Start year',
-                hintText: '2020',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (String? value) {
-                setState(() {
-                  _startYear = int.tryParse(value ?? '');
-                });
-              },
-              validator: (value) =>
-                  _validateYear(value, otherYear: _endYear, isStart: true),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'End year',
-                hintText: '2024',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (String? value) {
-                setState(() {
-                  _endYear = int.tryParse(value ?? '');
-                });
-              },
-              validator: (value) => _validateYear(value, otherYear: _startYear),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                hintText: 'Add details about your studies',
-                border: OutlineInputBorder(),
-                alignLabelWithHint: true,
-              ),
-              onChanged: (String? value) {
-                setState(() {
-                  _description = value ?? '';
-                });
-              },
-              validator: (value) =>
-                  _validateRequiredText(value, 'Description', maxLength: null),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saveEducation,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                child: const Text('Save'),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
