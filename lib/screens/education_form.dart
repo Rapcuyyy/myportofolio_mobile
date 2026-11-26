@@ -1,6 +1,10 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:myportofolio_mobile/models/education.dart';
+import 'package:myportofolio_mobile/services/api_client.dart';
+import 'package:myportofolio_mobile/services/auth_state.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 import 'package:myportofolio_mobile/widgets/auth_guard.dart';
+import 'package:provider/provider.dart';
 
 class EducationFormPage extends StatefulWidget {
   const EducationFormPage({super.key});
@@ -18,6 +22,7 @@ class _EducationFormPageState extends State<EducationFormPage> {
   String _description = '';
   String _educationLevel = 'Bachelor';
   bool _isCheckingAuthentication = true;
+  bool _isSubmitting = false;
 
   final List<String> _educationLevels = [
     'High School',
@@ -80,45 +85,107 @@ class _EducationFormPageState extends State<EducationFormPage> {
   }
 
   Future<void> _saveEducation() async {
+    if (_isSubmitting) return;
+
     final allowed = await ensureLoggedIn(context);
     if (!mounted || !allowed) return;
     if (!_formKey.currentState!.validate()) return;
 
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Education added'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Institution: ${_institution.trim()}'),
-              Text('Program: ${_program.trim()}'),
-              Text('Level: $_educationLevel'),
-              Text('Years: $_startYear - $_endYear'),
-              Text('Description: ${_description.trim()}'),
-            ],
+    final token = context.read<AuthState>().token;
+    if (token == null) {
+      _showSnackBar('Please log in to add education.');
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final education = Education(
+        institution: _institution.trim(),
+        program: _program.trim(),
+        educationLevel: _educationLevel,
+        startYear: _startYear!,
+        endYear: _endYear,
+        description: _description.trim(),
+      );
+      final createdEducation = await context.read<ApiClient>().createEducation(
+        education,
+        token: token,
+      );
+      if (!mounted) return;
+
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Education added'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Institution: ${createdEducation.institution}'),
+                Text('Program: ${createdEducation.program}'),
+                Text('Level: ${createdEducation.educationLevel}'),
+                Text(
+                  'Years: ${createdEducation.startYear} - '
+                  '${createdEducation.endYear}',
+                ),
+                Text('Description: ${createdEducation.description}'),
+              ],
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                _institution = '';
-                _program = '';
-                _startYear = null;
-                _endYear = null;
-                _description = '';
-                _educationLevel = 'Bachelor';
-              });
-              _formKey.currentState!.reset();
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+      );
+
+      if (!mounted) return;
+      _formKey.currentState!.reset();
+      setState(() {
+        _institution = '';
+        _program = '';
+        _startYear = null;
+        _endYear = null;
+        _description = '';
+        _educationLevel = 'Bachelor';
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+
+      if (error.statusCode == 401) {
+        var message = 'Session expired. Please log in again.';
+        try {
+          await context.read<AuthState>().logout();
+        } on ApiException catch (logoutError) {
+          message =
+              'Session expired (logout error ${logoutError.statusCode}). '
+              'Please log in again.';
+        }
+        if (!mounted) return;
+
+        _showSnackBar(message);
+        await ensureLoggedIn(context);
+      } else {
+        _showSnackBar('Could not add education (HTTP ${error.statusCode}).');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -255,13 +322,15 @@ class _EducationFormPageState extends State<EducationFormPage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _saveEducation,
+                      onPressed: _isSubmitting ? null : _saveEducation,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      child: const Text('Save'),
+                      child: _isSubmitting
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text('Save'),
                     ),
                   ),
                 ],
